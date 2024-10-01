@@ -1,20 +1,28 @@
 package com.example.firebaseautentication
 
+import android.content.Intent
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
+import com.example.firebaseautentication.databinding.ActivityHomeBinding
 
 class HomeActivity : AppCompatActivity() {
+    private lateinit var viewModel: AuthViewModels
+    private lateinit var binding: ActivityHomeBinding // Use ActivityHomeBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_home)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+
+        binding = ActivityHomeBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        viewModel = ViewModelProvider(this).get(AuthViewModels::class.java)
+
+        // Correctly set the OnClickListener for logoutBtn
+        binding.logoutBtn.setOnClickListener {
+            viewModel.signout()
+            startActivity(Intent(this@HomeActivity, LoginActivity::class.java))
+            finish() // Optionally call finish() to close the HomeActivity
         }
     }
 }

@@ -1,54 +1,63 @@
 package com.example.firebaseautentication
 
+import android.content.Intent
 import android.os.Bundle
-import android.view.inputmethod.InputBinding
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.firebaseautentication.databinding.ActivityRegistrationBinding
-import android.content.Intent as
 
 class RegistrationActivity : AppCompatActivity() {
     private lateinit var viewModel: AuthViewModels
     private lateinit var binding: ActivityRegistrationBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        binding = ActivityRegistrationBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
 
+        // Inflate the layout
+        binding = ActivityRegistrationBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Initialize the ViewModel
         viewModel = ViewModelProvider(this).get(AuthViewModels::class.java)
-        binding.registerBtn.setOnClickListener{
+
+        // Set click listener for the register button
+        binding.registerBtn.setOnClickListener {
             val email = binding.emailEt.text.toString()
             val password = binding.passwordEt.text.toString()
             val conPass = binding.confirmPasswordEt.text.toString()
-            if(email.isEmpty()|| password.isEmpty() || conPass.isEmpty()){
-                Toast.makeText(this@RegistrationActivity,"Please Fill All fields",
-                        Toast.LENGTH_SHORT).show()
 
-            }else if(!password.equals((conPass))){
-                Toast.makeText(this@RegistrationActivity,"Password does not match",
-                    Toast.LENGTH_SHORT).show()
-            }else{
-                viewModel.signUp(email,conPass).observe(this,{result->
-                    Toast.makeText(this@RegistrationActivity,result,Toast.LENGTH_SHORT).show()
+            // Validate input fields
+            when {
+                email.isEmpty() || password.isEmpty() || conPass.isEmpty() -> {
+                    showToast("Please fill all fields")
+                }
+                password != conPass -> {
+                    showToast("Passwords do not match")
+                }
+                else -> {
+                    // Attempt to sign up
+                    viewModel.signUp(email, conPass).observe(this, { result ->
+                        showToast(result)
 
-                    if (result.equals("SignUp Success")){
-
-
-
-
-
-
-                    }
-
-
-                })
+                        // Navigate to HomeActivity if sign up was successful
+                        if (result == "SignUp Success") {
+                            startActivity(Intent(this, HomeActivity::class.java))
+                            finish() // Optional: Close RegistrationActivity
+                        }
+                    })
+                }
             }
-
         }
+
+        // Set click listener for the already have an account text
+        binding.AlreadyHaveAnAccountTxt.setOnClickListener {
+            startActivity(Intent(this, LoginActivity::class.java))
+        }
+    }
+
+    // Helper function to show Toast messages
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }
